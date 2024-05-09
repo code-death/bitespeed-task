@@ -1,11 +1,11 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './css/home.css'
 import initialRules from '../../constants/builder.json'
 import FilterGroup from "./components/FilterGroup.jsx";
 import FilterRule from "./components/FilterRule.jsx";
 import _ from "lodash";
-import {v4 as uuidv4} from 'uuid';
 import {Button} from "antd";
+import {v4 as uuidV4} from 'uuid'
 
 const Home = () => {
     const [parsedRules, setParsedRules] = useState([])
@@ -15,8 +15,10 @@ const Home = () => {
         let data = window.localStorage.getItem('data')
         if(_.isEmpty(data)) {
             setParsedRules(generateArray(initialRules, Object.keys(initialRules)[0]));
+            console.log(generateArray(initialRules, Object.keys(initialRules)[0]))
         } else {
             setParsedRules(generateArray(JSON.parse(data), Object.keys(data)[0]));
+            console.log(generateArray(JSON.parse(data), Object.keys(data)[0]))
         }
     }, []);
 
@@ -26,11 +28,11 @@ const Home = () => {
 
         if (ruleGroup?.OR) {
             ruleGroup.OR.map((rule, index) => {
-                nodeArray.push(generateArray({...rule, parentIndex}, 'OR', index))
+                nodeArray.push(generateArray({...rule, parentIndex, key: uuidV4()}, 'OR', index))
             })
         } else if (ruleGroup?.AND) {
             ruleGroup.AND.map((rule, index) => {
-                nodeArray.push(generateArray({...rule, parentIndex}, 'AND', index))
+                nodeArray.push(generateArray({...rule, parentIndex, key: uuidV4()}, 'AND', index))
             })
         } else {
             return {...ruleGroup, op, ruleIndex};
@@ -65,7 +67,8 @@ const Home = () => {
                 type: "Text",
                 value: "",
                 op,
-                parentIndex
+                parentIndex,
+                key: uuidV4()
             })
         }
 
@@ -74,7 +77,8 @@ const Home = () => {
                 type: "Text",
                 value: "",
                 op,
-                parentIndex
+                parentIndex,
+                key: uuidV4()
             })
         }
 
@@ -84,7 +88,8 @@ const Home = () => {
                 type: "Text",
                 value: "",
                 op,
-                parentIndex
+                parentIndex,
+                key: uuidV4()
             })
         }
 
@@ -100,7 +105,8 @@ const Home = () => {
                     type: "Dropdown",
                     value: "",
                     op: "OR",
-                    parentIndex: tempRules.length
+                    parentIndex: tempRules.length,
+                    key: uuidV4(),
                 }
             ])
         }
@@ -111,7 +117,8 @@ const Home = () => {
                     type: "Dropdown",
                     value: "",
                     op: "OR",
-                    parentIndex: tempRules[parentIndex].length
+                    parentIndex: tempRules[parentIndex].length,
+                    key: uuidV4(),
                 }
             ])
         }
@@ -121,6 +128,8 @@ const Home = () => {
 
     const handleDeleteRule = (rules, op, parentIndex, nodeNum, parent, ruleIndex) => {
         let tempRules = [...parsedRules];
+
+        console.log(parsedRules)
 
         if (nodeNum === 0) {
             tempRules.splice(ruleIndex, 1);
@@ -135,6 +144,7 @@ const Home = () => {
             tempRules[supIndex][parentIndex].splice(ruleIndex, 1)
         }
 
+        console.log(tempRules)
         setParsedRules(tempRules);
     };
 
@@ -232,6 +242,7 @@ const Home = () => {
                     handleAddRule={() => handleAddRule(rules, op, parentIndex, depth, parent)}
                     handleAddGroup={() => handleAddGroup(rules, op, parentIndex, depth, parent)}
                     handleDeleteGroup={() => handleDeleteGroup(rules, op, parentIndex, depth, parent)}
+                    key={uuidV4()}
                 >
                     {
                         !_.isEmpty(rules) && rules.map((rule, index) => {
@@ -240,7 +251,7 @@ const Home = () => {
                             } else {
                                 return (
                                     <FilterRule
-                                        key={index} index={index} operator={op} rule={rule}
+                                        key={rule.key} index={index} operator={op} rule={rule}
                                         handleDeleteRule={() => handleDeleteRule(rules, op, parentIndex, depth, parent, index)}
                                         handleChangeValue={(value) => handleChangeValue(rules, op, parentIndex, depth, parent, index, value)}
                                         handleChangeOp={(value) => handleChangeOp(rules, op, parentIndex, depth, parent, index, value)}
