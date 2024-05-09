@@ -1,0 +1,8 @@
+{
+  "AND": [
+    {
+      "type": "Dropdown",
+      "value": "yes"
+    }
+  ]
+}
