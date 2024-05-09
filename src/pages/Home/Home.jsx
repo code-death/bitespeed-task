@@ -73,22 +73,24 @@ const Home = () => {
         }
 
         if (depth === 1) {
-            tempRules[parentIndex].push({
+            let groupIndex = findSubArrayIndex(parent, rules)
+            tempRules[groupIndex].push({
                 type: "Text",
                 value: "",
                 op,
-                parentIndex,
+                parentIndex: groupIndex,
                 key: uuidV4()
             })
         }
 
         if (depth === 2) {
+            let groupIndex = findSubArrayIndex(parent, rules)
             let supIndex = findSubArrayIndex(tempRules, parent);
-            tempRules[supIndex][parentIndex].push({
+            tempRules[supIndex][groupIndex].push({
                 type: "Text",
                 value: "",
                 op,
-                parentIndex,
+                parentIndex: groupIndex,
                 key: uuidV4()
             })
         }
@@ -112,12 +114,13 @@ const Home = () => {
         }
 
         if (depth === 1) {
-            tempRules[parentIndex].push([
+            let groupIndex = findSubArrayIndex(parent, rules)
+            tempRules[groupIndex].push([
                 {
                     type: "Dropdown",
                     value: "",
                     op: "OR",
-                    parentIndex: tempRules[parentIndex].length,
+                    parentIndex: tempRules[groupIndex].length,
                     key: uuidV4(),
                 }
             ])
@@ -136,12 +139,14 @@ const Home = () => {
         }
 
         if (nodeNum === 1) {
-            tempRules[parentIndex].splice(ruleIndex, 1);
+            let calcIndex = findSubArrayIndex(parent, rules)
+            tempRules[calcIndex].splice(ruleIndex, 1);
         }
 
         if (nodeNum === 2) {
+            let calcIndex = findSubArrayIndex(parent, rules)
             let supIndex = findSubArrayIndex(tempRules, parent);
-            tempRules[supIndex][parentIndex].splice(ruleIndex, 1)
+            tempRules[supIndex][calcIndex].splice(ruleIndex, 1)
         }
 
         console.log(tempRules)
@@ -149,6 +154,7 @@ const Home = () => {
     };
 
     const handleDeleteGroup = (rules, op, parentIndex, nodeNum, parent) => {
+        console.log(parsedRules)
         let tempRules = [...parsedRules];
 
         if (nodeNum === 1) {
@@ -162,6 +168,7 @@ const Home = () => {
             tempRules[supIndex].splice(groupIndex, 1)
         }
 
+        console.log(tempRules)
         setParsedRules(tempRules);
     };
 
@@ -177,7 +184,8 @@ const Home = () => {
         }
 
         if(depth === 1) {
-            tempRules[parentIndex].forEach(rule => {
+            let groupIndex = findSubArrayIndex(parent, rules)
+            tempRules[groupIndex].forEach(rule => {
                 if(!rule.length) {
                     rule.op = value
                 }
@@ -185,8 +193,9 @@ const Home = () => {
         }
 
         if(depth === 2) {
+            let groupIndex = findSubArrayIndex(parent, rules)
             let supeIndex = findSubArrayIndex(tempRules, parent);
-            tempRules[supeIndex][parentIndex].forEach(rule => {
+            tempRules[supeIndex][groupIndex].forEach(rule => {
                 if(!rule.length) {
                     rule.op = value
                 }
@@ -204,12 +213,14 @@ const Home = () => {
         }
 
         if(depth === 1) {
-            tempRules[parentIndex][ruleIndex].value = value;
+            let groupIndex = findSubArrayIndex(parent, rules)
+            tempRules[groupIndex][ruleIndex].value = value;
         }
 
         if(depth === 2) {
+            let groupIndex = findSubArrayIndex(parent, rules)
             let supIndex = findSubArrayIndex(tempRules, parent);
-            tempRules[supIndex][parentIndex][ruleIndex].value = value;
+            tempRules[supIndex][groupIndex][ruleIndex].value = value;
         }
 
         setParsedRules(tempRules)
@@ -242,7 +253,6 @@ const Home = () => {
                     handleAddRule={() => handleAddRule(rules, op, parentIndex, depth, parent)}
                     handleAddGroup={() => handleAddGroup(rules, op, parentIndex, depth, parent)}
                     handleDeleteGroup={() => handleDeleteGroup(rules, op, parentIndex, depth, parent)}
-                    key={uuidV4()}
                 >
                     {
                         !_.isEmpty(rules) && rules.map((rule, index) => {
